@@ -42,6 +42,12 @@ public class SampleActivity extends FragmentActivity
             Toast.makeText(SampleActivity.this,
                     "Canceled", Toast.LENGTH_SHORT).show();
         }
+
+        @Override
+        public void onDateTimeTurnedOff() {
+            Toast.makeText(SampleActivity.this,
+                    "Turned off", Toast.LENGTH_SHORT).show();
+        }
     };
 
     @Override
@@ -61,6 +67,8 @@ public class SampleActivity extends FragmentActivity
                 new SlideDateTimePicker.Builder(getSupportFragmentManager())
                     .setListener(listener)
                     .setInitialDate(new Date())
+                    .setTurnOffText("Turn off")
+                    .setTurnOffable(true)
                     //.setMinDate(minDate)
                     //.setMaxDate(maxDate)
                     //.setIs24HourTime(true)

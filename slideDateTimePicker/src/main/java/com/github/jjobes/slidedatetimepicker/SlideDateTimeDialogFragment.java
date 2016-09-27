@@ -45,8 +45,10 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
     private SlidingTabLayout mSlidingTabLayout;
     private View mButtonHorizontalDivider;
     private View mButtonVerticalDivider;
+    private View mButtonTurnOffVerticalDivider;
     private Button mOkButton;
     private Button mCancelButton;
+    private Button mTurnOffButton;
     private Date mInitialDate;
     private int mTheme;
     private int mIndicatorColor;
@@ -59,6 +61,8 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         DateUtils.FORMAT_SHOW_WEEKDAY |
         DateUtils.FORMAT_SHOW_DATE |
         DateUtils.FORMAT_ABBREV_ALL;
+    private boolean mTurnOffable;
+    private String mTurnOffText;
 
     public SlideDateTimeDialogFragment()
     {
@@ -83,7 +87,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
      */
     public static SlideDateTimeDialogFragment newInstance(SlideDateTimeListener listener,
             Date initialDate, Date minDate, Date maxDate, boolean isClientSpecified24HourTime,
-            boolean is24HourTime, int theme, int indicatorColor)
+            boolean is24HourTime, int theme, int indicatorColor, boolean turnOffable, String turnOffText)
     {
         mListener = listener;
 
@@ -99,6 +103,8 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         bundle.putBoolean("is24HourTime", is24HourTime);
         bundle.putInt("theme", theme);
         bundle.putInt("indicatorColor", indicatorColor);
+        bundle.putBoolean("turnOffable", turnOffable);
+        bundle.putString("turnOffText", turnOffText);
         dialogFragment.setArguments(bundle);
 
         // Return the fragment with its bundle
@@ -177,6 +183,8 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         mIs24HourTime = args.getBoolean("is24HourTime");
         mTheme = args.getInt("theme");
         mIndicatorColor = args.getInt("indicatorColor");
+        mTurnOffable = args.getBoolean("turnOffable", false);
+        mTurnOffText = args.getString("turnOffText");
     }
 
     private void setupViews(View v)
@@ -185,8 +193,10 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         mSlidingTabLayout = (SlidingTabLayout) v.findViewById(R.id.slidingTabLayout);
         mButtonHorizontalDivider = v.findViewById(R.id.buttonHorizontalDivider);
         mButtonVerticalDivider = v.findViewById(R.id.buttonVerticalDivider);
+        mButtonTurnOffVerticalDivider = v.findViewById(R.id.buttonTurnOffVerticalDivider);
         mOkButton = (Button) v.findViewById(R.id.okButton);
         mCancelButton = (Button) v.findViewById(R.id.cancelButton);
+        mTurnOffButton = (Button) v.findViewById(R.id.turnOffButton);
     }
 
     private void customizeViews()
@@ -213,6 +223,15 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         // Set the color of the selected tab underline if one was specified.
         if (mIndicatorColor != 0)
             mSlidingTabLayout.setSelectedIndicatorColors(mIndicatorColor);
+
+        mTurnOffButton.setText(mTurnOffText);
+        if (mTurnOffable){
+            mTurnOffButton.setVisibility(View.VISIBLE);
+            mButtonTurnOffVerticalDivider.setVisibility(View.VISIBLE);
+        }else{
+            mTurnOffButton.setVisibility(View.GONE);
+            mButtonTurnOffVerticalDivider.setVisibility(View.GONE);
+        }
     }
 
     private void initViewPager()
@@ -266,6 +285,23 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
                 }
 
                 mListener.onDateTimeCancel();
+
+                dismiss();
+            }
+        });
+
+        mTurnOffButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v)
+            {
+                if (mListener == null)
+                {
+                    throw new NullPointerException(
+                            "Listener no longer exists for mTurnOffButton");
+                }
+
+                mListener.onDateTimeTurnedOff();
 
                 dismiss();
             }

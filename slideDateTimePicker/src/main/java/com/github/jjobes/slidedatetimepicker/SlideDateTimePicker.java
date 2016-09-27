@@ -30,6 +30,8 @@ public class SlideDateTimePicker
     private boolean mIs24HourTime;
     private int mTheme;
     private int mIndicatorColor;
+    private boolean turnOffable;
+    private String turnOffText;
 
     /**
      * Creates a new instance of {@code SlideDateTimePicker}.
@@ -179,10 +181,28 @@ public class SlideDateTimePicker
                         mIsClientSpecified24HourTime,
                         mIs24HourTime,
                         mTheme,
-                        mIndicatorColor);
+                        mIndicatorColor,
+                        turnOffable,
+                        turnOffText);
 
         dialogFragment.show(mFragmentManager,
                 SlideDateTimeDialogFragment.TAG_SLIDE_DATE_TIME_DIALOG_FRAGMENT);
+    }
+
+    public boolean isTurnOffable() {
+        return turnOffable;
+    }
+
+    public void setTurnOffable(boolean turnOffable) {
+        this.turnOffable = turnOffable;
+    }
+
+    public String getTurnOffText() {
+        return turnOffText;
+    }
+
+    public void setTurnOffText(String turnOffText) {
+        this.turnOffText = turnOffText;
     }
 
     /*
@@ -203,6 +223,8 @@ public class SlideDateTimePicker
         private boolean is24HourTime;
         private int theme;
         private int indicatorColor;
+        private boolean turnOffable;
+        private String turnOffText;
 
         public Builder(FragmentManager fm)
         {
@@ -274,6 +296,24 @@ public class SlideDateTimePicker
         }
 
         /**
+         * @see SlideDateTimePicker#setTurnOffable(boolean)
+         */
+        public Builder setTurnOffable(boolean turnOffable)
+        {
+            this.turnOffable = turnOffable;
+            return this;
+        }
+
+        /**
+         * @see SlideDateTimePicker#setTurnOffText(String)
+         */
+        public Builder setTurnOffText(String turnOffText)
+        {
+            this.turnOffText = turnOffText;
+            return this;
+        }
+
+        /**
          * <p>Build and return a {@code SlideDateTimePicker} object based on the previously
          * supplied parameters.</p>
          *
@@ -292,6 +332,8 @@ public class SlideDateTimePicker
             picker.setIs24HourTime(is24HourTime);
             picker.setTheme(theme);
             picker.setIndicatorColor(indicatorColor);
+            picker.setTurnOffable(turnOffable);
+            picker.setTurnOffText(turnOffText);
 
             return picker;
         }

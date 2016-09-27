@@ -35,4 +35,15 @@ public abstract class SlideDateTimeListener
     {
 
     }
+
+    /**
+     * Only when the dialog is turnOffable
+     * this is called to tell that the datetime
+     * picked should be turned off.
+     * This override is optional
+     */
+    public void onDateTimeTurnedOff()
+    {
+
+    }
 }
