@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,6 +64,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         DateUtils.FORMAT_ABBREV_ALL;
     private boolean mTurnOffable;
     private String mTurnOffText;
+    private boolean mShowTimeFirst;
 
     public SlideDateTimeDialogFragment()
     {
@@ -87,7 +89,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
      */
     public static SlideDateTimeDialogFragment newInstance(SlideDateTimeListener listener,
             Date initialDate, Date minDate, Date maxDate, boolean isClientSpecified24HourTime,
-            boolean is24HourTime, int theme, int indicatorColor, boolean turnOffable, String turnOffText)
+            boolean is24HourTime, int theme, int indicatorColor, boolean turnOffable, String turnOffText, boolean showTimeFirst)
     {
         mListener = listener;
 
@@ -105,6 +107,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         bundle.putInt("indicatorColor", indicatorColor);
         bundle.putBoolean("turnOffable", turnOffable);
         bundle.putString("turnOffText", turnOffText);
+        bundle.putBoolean("showTimeFirst", showTimeFirst);
         dialogFragment.setArguments(bundle);
 
         // Return the fragment with its bundle
@@ -185,6 +188,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
         mIndicatorColor = args.getInt("indicatorColor");
         mTurnOffable = args.getBoolean("turnOffable", false);
         mTurnOffText = args.getString("turnOffText");
+        mShowTimeFirst = args.getBoolean("showTimeFirst", false);
     }
 
     private void setupViews(View v)
@@ -201,6 +205,9 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
 
     private void customizeViews()
     {
+
+        mViewPager.setShowTimeFirst(mShowTimeFirst);
+
         int lineColor = mTheme == SlideDateTimePicker.HOLO_DARK ?
                 getResources().getColor(R.color.gray_holo_dark) :
                 getResources().getColor(R.color.gray_holo_light);
@@ -337,21 +344,44 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
     @Override
     public void onTimeChanged(int hour, int minute)
     {
-        mCalendar.set(Calendar.HOUR_OF_DAY, hour);
-        mCalendar.set(Calendar.MINUTE, minute);
+        // CHECK FOR MIN_TIME
+        if (mMinDate != null){
+            Calendar tempCal = Calendar.getInstance();
+            tempCal = (Calendar) mCalendar.clone();
+            tempCal.set(Calendar.HOUR_OF_DAY, hour);
+            tempCal.set(Calendar.MINUTE, minute);
+
+            if (mMinDate.after(tempCal.getTime())){
+                mViewPagerAdapter.mTimeFragment.setTime(mCalendar.getTime());
+            }else{
+                mCalendar.set(Calendar.HOUR_OF_DAY, hour);
+                mCalendar.set(Calendar.MINUTE, minute);
+            }
+        }else{
+            mCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            mCalendar.set(Calendar.MINUTE, minute);
+        }
 
         updateTimeTab();
     }
 
     private void updateDateTab()
     {
-        mSlidingTabLayout.setTabText(0, DateUtils.formatDateTime(
+        int index = 0;
+        if (mShowTimeFirst){
+            index = 1;
+        }
+        mSlidingTabLayout.setTabText(index, DateUtils.formatDateTime(
                 mContext, mCalendar.getTimeInMillis(), mDateFlags));
     }
 
     @SuppressLint("SimpleDateFormat")
     private void updateTimeTab()
     {
+        int index = 1;
+        if (mShowTimeFirst){
+            index = 0;
+        }
         if (mIsClientSpecified24HourTime)
         {
             SimpleDateFormat formatter;
@@ -359,17 +389,17 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
             if (mIs24HourTime)
             {
                 formatter = new SimpleDateFormat("HH:mm");
-                mSlidingTabLayout.setTabText(1, formatter.format(mCalendar.getTime()));
+                mSlidingTabLayout.setTabText(index, formatter.format(mCalendar.getTime()));
             }
             else
             {
                 formatter = new SimpleDateFormat("h:mm aa");
-                mSlidingTabLayout.setTabText(1, formatter.format(mCalendar.getTime()));
+                mSlidingTabLayout.setTabText(index, formatter.format(mCalendar.getTime()));
             }
         }
         else  // display time using the device's default 12/24 hour format preference
         {
-            mSlidingTabLayout.setTabText(1, DateFormat.getTimeFormat(
+            mSlidingTabLayout.setTabText(index, DateFormat.getTimeFormat(
                     mContext).format(mCalendar.getTimeInMillis()));
         }
     }
@@ -402,33 +432,56 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
             super(fm);
         }
 
+        DateFragment mDateFragment;
+        TimeFragment mTimeFragment;
+
         @Override
         public Fragment getItem(int position)
         {
             switch (position)
             {
             case 0:
-                DateFragment dateFragment = DateFragment.newInstance(
-                    mTheme,
-                    mCalendar.get(Calendar.YEAR),
-                    mCalendar.get(Calendar.MONTH),
-                    mCalendar.get(Calendar.DAY_OF_MONTH),
-                    mMinDate,
-                    mMaxDate);
-                dateFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 100);
-                return dateFragment;
+                if (mShowTimeFirst){
+                    return getTimeFragment();
+                }else{
+                    return getDateFragment();
+                }
             case 1:
-                TimeFragment timeFragment = TimeFragment.newInstance(
-                    mTheme,
-                    mCalendar.get(Calendar.HOUR_OF_DAY),
-                    mCalendar.get(Calendar.MINUTE),
-                    mIsClientSpecified24HourTime,
-                    mIs24HourTime);
-                timeFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 200);
-                return timeFragment;
+                if (mShowTimeFirst){
+                    return getDateFragment();
+                }else{
+                    return getTimeFragment();
+                }
             default:
                 return null;
             }
+        }
+
+        private Fragment getDateFragment(){
+            if (mDateFragment == null) {
+                mDateFragment = DateFragment.newInstance(
+                        mTheme,
+                        mCalendar.get(Calendar.YEAR),
+                        mCalendar.get(Calendar.MONTH),
+                        mCalendar.get(Calendar.DAY_OF_MONTH),
+                        mMinDate,
+                        mMaxDate);
+                mDateFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 100);
+            }
+            return mDateFragment;
+        }
+
+        private Fragment getTimeFragment(){
+            if (mTimeFragment == null) {
+                mTimeFragment = TimeFragment.newInstance(
+                        mTheme,
+                        mCalendar.get(Calendar.HOUR_OF_DAY),
+                        mCalendar.get(Calendar.MINUTE),
+                        mIsClientSpecified24HourTime,
+                        mIs24HourTime);
+                mTimeFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 200);
+            }
+            return mTimeFragment;
         }
 
         @Override

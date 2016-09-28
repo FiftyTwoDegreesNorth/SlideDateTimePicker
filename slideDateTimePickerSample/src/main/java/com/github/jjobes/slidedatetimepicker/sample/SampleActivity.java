@@ -1,9 +1,11 @@
 package com.github.jjobes.slidedatetimepicker.sample;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -64,12 +66,18 @@ public class SampleActivity extends FragmentActivity
             @Override
             public void onClick(View v)
             {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MINUTE, 10);
+                Date startDate = cal.getTime();
+
                 new SlideDateTimePicker.Builder(getSupportFragmentManager())
+                    .setShowTimeFirst(true)
                     .setListener(listener)
                     .setInitialDate(new Date())
                     .setTurnOffText("Turn off")
                     .setTurnOffable(true)
-                    //.setMinDate(minDate)
+                    .setMinDate(new Date())
+                    .setInitialDate(startDate)
                     //.setMaxDate(maxDate)
                     //.setIs24HourTime(true)
                     //.setTheme(SlideDateTimePicker.HOLO_DARK)

@@ -32,6 +32,7 @@ public class SlideDateTimePicker
     private int mIndicatorColor;
     private boolean turnOffable;
     private String turnOffText;
+    private boolean showTimeFirst;
 
     /**
      * Creates a new instance of {@code SlideDateTimePicker}.
@@ -183,7 +184,8 @@ public class SlideDateTimePicker
                         mTheme,
                         mIndicatorColor,
                         turnOffable,
-                        turnOffText);
+                        turnOffText,
+                        showTimeFirst);
 
         dialogFragment.show(mFragmentManager,
                 SlideDateTimeDialogFragment.TAG_SLIDE_DATE_TIME_DIALOG_FRAGMENT);
@@ -203,6 +205,10 @@ public class SlideDateTimePicker
 
     public void setTurnOffText(String turnOffText) {
         this.turnOffText = turnOffText;
+    }
+
+    public void setShowTimeFirst(boolean showTimeFirst) {
+        this.showTimeFirst = showTimeFirst;
     }
 
     /*
@@ -225,6 +231,7 @@ public class SlideDateTimePicker
         private int indicatorColor;
         private boolean turnOffable;
         private String turnOffText;
+        private boolean showTimeFirst;
 
         public Builder(FragmentManager fm)
         {
@@ -313,6 +320,11 @@ public class SlideDateTimePicker
             return this;
         }
 
+        public Builder setShowTimeFirst(boolean showTimeFirst) {
+            this.showTimeFirst = showTimeFirst;
+            return this;
+        }
+
         /**
          * <p>Build and return a {@code SlideDateTimePicker} object based on the previously
          * supplied parameters.</p>
@@ -334,6 +346,7 @@ public class SlideDateTimePicker
             picker.setIndicatorColor(indicatorColor);
             picker.setTurnOffable(turnOffable);
             picker.setTurnOffText(turnOffText);
+            picker.setShowTimeFirst(showTimeFirst);
 
             return picker;
         }

@@ -23,6 +23,7 @@ public class CustomViewPager extends ViewPager
     private TimePicker mTimePicker;
     private float x1, y1, x2, y2;
     private float mTouchSlop;
+    private boolean mShowTimeFirst;
 
     public CustomViewPager(Context context)
     {
@@ -41,6 +42,10 @@ public class CustomViewPager extends ViewPager
     private void init(Context context)
     {
         mTouchSlop = ViewConfiguration.get(context).getScaledPagingTouchSlop();
+    }
+
+    public void setShowTimeFirst(boolean showTimeFirst) {
+        this.mShowTimeFirst = showTimeFirst;
     }
 
     /**
@@ -114,15 +119,25 @@ public class CustomViewPager extends ViewPager
          {
          case 0:
 
-             if (mDatePicker != null)
-                 mDatePicker.dispatchTouchEvent(event);
+             if (mShowTimeFirst) {
+                 if (mTimePicker != null)
+                     mTimePicker.dispatchTouchEvent(event);
+             }else{
+                 if (mDatePicker != null)
+                     mDatePicker.dispatchTouchEvent(event);
+             }
 
              break;
 
          case 1:
 
-             if (mTimePicker != null)
-                 mTimePicker.dispatchTouchEvent(event);
+             if (mShowTimeFirst) {
+                 if (mDatePicker != null)
+                     mDatePicker.dispatchTouchEvent(event);
+             }else {
+                 if (mTimePicker != null)
+                     mTimePicker.dispatchTouchEvent(event);
+             }
 
              break;
          }

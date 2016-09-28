@@ -14,6 +14,8 @@ import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.TimePicker;
 
+import java.util.Date;
+
 /**
  * The fragment for the second page in the ViewPager that holds
  * the TimePicker.
@@ -140,8 +142,7 @@ public class TimeFragment extends Fragment
         {
             // If the client does not specify a 24-hour time format, use the
             // device default.
-            mTimePicker.setIs24HourView(DateFormat.is24HourFormat(
-                getTargetFragment().getActivity()));
+            mTimePicker.setIs24HourView(DateFormat.is24HourFormat(getTargetFragment().getActivity()));
         }
 
         mTimePicker.setCurrentHour(initialHour);
@@ -156,6 +157,13 @@ public class TimeFragment extends Fragment
         }
 
         return v;
+    }
+
+    public void setTime(Date date){
+        int hour = date.getHours();
+        int minute = date.getMinutes();
+        mTimePicker.setCurrentHour(hour);
+        mTimePicker.setCurrentMinute(minute);
     }
 
     /**
