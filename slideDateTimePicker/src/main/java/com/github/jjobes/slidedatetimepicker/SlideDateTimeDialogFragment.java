@@ -243,6 +243,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
 
     private void initViewPager()
     {
+
         mViewPagerAdapter = new ViewPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(mViewPagerAdapter);
 
@@ -466,7 +467,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
                         mCalendar.get(Calendar.DAY_OF_MONTH),
                         mMinDate,
                         mMaxDate);
-                mDateFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 100);
+                // mDateFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 100);
             }
             return mDateFragment;
         }
@@ -479,7 +480,7 @@ public class SlideDateTimeDialogFragment extends DialogFragment implements DateF
                         mCalendar.get(Calendar.MINUTE),
                         mIsClientSpecified24HourTime,
                         mIs24HourTime);
-                mTimeFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 200);
+                // mTimeFragment.setTargetFragment(SlideDateTimeDialogFragment.this, 200);
             }
             return mTimeFragment;
         }
